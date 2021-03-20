@@ -7,12 +7,13 @@ class RandomQPExample(object):
     '''
     Random QP example
     '''
-    def __init__(self, n, seed=1):
+    def __init__(self, n, seed=1, create_cvxpy_problem=False, rng=None):
         '''
         Generate problem in QP format and CVXPY format
         '''
         # Set random seed
-        np.random.seed(seed)
+        if rng is None:
+            rng = np.random.default_rng(seed)
 
         m = int(n * 10)
 
@@ -20,20 +21,23 @@ class RandomQPExample(object):
         self.n = int(n)
         self.m = m
         P = spa.random(n, n, density=0.15,
-                       data_rvs=np.random.randn,
+                       random_state=rng,
+                       data_rvs=rng.standard_normal,
                        format='csc')
         self.P = P.dot(P.T).tocsc() + 1e-02 * spa.eye(n)
-        self.q = np.random.randn(n)
+        self.q = rng.standard_normal(n)
         self.A = spa.random(m, n, density=0.15,
-                            data_rvs=np.random.randn,
+                            random_state=rng,
+                            data_rvs=rng.standard_normal,
                             format='csc')
-        v = np.random.randn(n)   # Fictitious solution
-        delta = np.random.rand(m)  # To get inequality
+        v = rng.standard_normal(n)   # Fictitious solution
+        delta = rng.random(m)  # To get inequality
         self.u = self.A@v + delta
         self.l = - np.inf * np.ones(m)  # self.u - np.random.rand(m)
 
         self.qp_problem = self._generate_qp_problem()
-        self.cvxpy_problem = self._generate_cvxpy_problem()
+        if create_cvxpy_problem:
+            self.cvxpy_problem = self._generate_cvxpy_problem()
 
     @staticmethod
     def name():

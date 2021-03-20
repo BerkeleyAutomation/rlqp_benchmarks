@@ -7,12 +7,13 @@ class PortfolioExample(object):
     '''
     Portfolio QP example
     '''
-    def __init__(self, k, seed=1, n=None):
+    def __init__(self, k, seed=1, n=None, create_cvxpy_problem=False, rng=None):
         '''
         Generate problem in QP format and CVXPY format
         '''
         # Set random seed
-        np.random.seed(seed)
+        if rng is None:
+            rng = np.random.default_rng(seed)
 
         self.k = int(k)               # Number of factors
         if n is None:                 # Number of assets
@@ -22,15 +23,17 @@ class PortfolioExample(object):
 
         # Generate data
         self.F = spa.random(self.n, self.k, density=0.5,
-                            data_rvs=np.random.randn, format='csc')
-        self.D = spa.diags(np.random.rand(self.n) *
+                            random_state=rng,
+                            data_rvs=rng.standard_normal, format='csc')
+        self.D = spa.diags(rng.random(self.n) *
                            np.sqrt(self.k), format='csc')
-        self.mu = np.random.randn(self.n)
+        self.mu = rng.standard_normal(self.n)
         self.gamma = 1.0
 
         self.qp_problem = self._generate_qp_problem()
-        self.cvxpy_problem, self.cvxpy_param = \
-            self._generate_cvxpy_problem()
+        if create_cvxpy_problem:
+            self.cvxpy_problem, self.cvxpy_param = \
+                self._generate_cvxpy_problem()
 
     @staticmethod
     def name():

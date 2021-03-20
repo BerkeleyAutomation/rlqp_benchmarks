@@ -7,12 +7,13 @@ class SVMExample(object):
     '''
     SVM QP example
     '''
-    def __init__(self, n, seed=1):
+    def __init__(self, n, seed=1, create_cvxpy_problem=False, rng=None):
         '''
         Generate problem in QP format and CVXPY format
         '''
         # Set random seed
-        np.random.seed(seed)
+        if rng is None:
+            rng = np.random.default_rng(seed)
 
         self.n = int(n)               # Number of features
         self.m = int(self.n * 100)    # Number of data-points
@@ -22,17 +23,20 @@ class SVMExample(object):
         self.gamma = 1.0
         self.b_svm = np.append(np.ones(self.N), -np.ones(self.N))
         A_upp = spa.random(self.N, self.n, density=.15,
-                           data_rvs=np.random.randn)
+                           random_state=rng,
+                           data_rvs=rng.standard_normal)
         A_low = spa.random(self.N, self.n, density=.15,
-                           data_rvs=np.random.randn)
+                           random_state=rng,
+                           data_rvs=rng.standard_normal)
         self.A_svm = spa.vstack([
             A_upp / np.sqrt(self.n) + (A_upp != 0.).astype(float) / self.n,
             A_low / np.sqrt(self.n) - (A_low != 0.).astype(float) / self.n
             ]).tocsc()
 
         self.qp_problem = self._generate_qp_problem()
-        self.cvxpy_problem, self.cvxpy_variables = \
-            self._generate_cvxpy_problem()
+        if create_cvxpy_problem:
+            self.cvxpy_problem, self.cvxpy_variables = \
+                self._generate_cvxpy_problem()
 
     @staticmethod
     def name():

@@ -8,12 +8,13 @@ class ControlExample(object):
     '''
     Control QP example
     '''
-    def __init__(self, n, seed=1):
+    def __init__(self, n, seed=1, create_cvxpy_problem=False, rng=None):
         '''
         Generate problem in QP format and CVXPY format
         '''
         # Set random seed
-        np.random.seed(seed)
+        if rng is None:
+            rng = np.random.default_rng(seed)
 
         # Generate random dynamics
         self.nx = int(n)       # States
@@ -21,7 +22,8 @@ class ControlExample(object):
 
         self.A = spa.eye(self.nx) + .1 * spa.random(self.nx, self.nx,
                                                     density=1.0,
-                                                    data_rvs=np.random.randn)
+                                                    random_state=rng,
+                                                    data_rvs=rng.standard_normal)
 
         # Restrict eigenvalues of A to be less than 1
         lambda_values, V = np.linalg.eig(self.A.todense())
@@ -39,13 +41,14 @@ class ControlExample(object):
             )
 
         self.B = spa.random(self.nx, self.nu, density=1.0,
-                            data_rvs=np.random.randn)
+                            random_state=rng,
+                            data_rvs=rng.standard_normal)
 
         # Control penalty
         self.R = .1 * spa.eye(self.nu)
-        ind07 = np.random.rand(self.nx) < 0.7   # Random 30% data
+        ind07 = rng.random(self.nx) < 0.7   # Random 30% data
         # Choose only 70% of nonzero elements
-        diagQ = np.multiply(np.random.rand(self.nx), ind07)
+        diagQ = np.multiply(rng.random(self.nx), ind07)
         self.Q = spa.diags(diagQ)
         QN = sla.solve_discrete_are(self.A.todense(), self.B.todense(),
                                     self.Q.todense(), self.R.todense())
@@ -55,13 +58,13 @@ class ControlExample(object):
         # self.QN = 10 * self.Q
 
         # Input ad state bounds
-        self.umin = - 1.0 * np.random.rand(self.nu)
+        self.umin = - 1.0 * rng.random(self.nu)
         self.umax = -self.umin
-        self.xmin = -1.0 - np.random.rand(self.nx)
+        self.xmin = -1.0 - rng.random(self.nx)
         self.xmax = -self.xmin
 
         # Initial state (constrain to be within lower and upper bound)
-        self.x0 = np.random.rand(self.nx)
+        self.x0 = rng.random(self.nx)
         min_x0 = .5 * self.xmin
         max_x0 = .5 * self.xmax
         for i in range(self.nx):
@@ -72,8 +75,9 @@ class ControlExample(object):
         self.T = 10
 
         self.qp_problem = self._generate_qp_problem()
-        self.cvxpy_problem, self.cvxpy_variables, self.cvxpy_param = \
-            self._generate_cvxpy_problem()
+        if create_cvxpy_problem:
+            self.cvxpy_problem, self.cvxpy_variables, self.cvxpy_param = \
+                self._generate_cvxpy_problem()
 
     @staticmethod
     def name():

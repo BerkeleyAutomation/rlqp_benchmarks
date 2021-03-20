@@ -1,8 +1,8 @@
-from solvers.ecos import ECOSSolver
-from solvers.gurobi import GUROBISolver
-from solvers.mosek import MOSEKSolver
+#from solvers.ecos import ECOSSolver
+#from solvers.gurobi import GUROBISolver
+#from solvers.mosek import MOSEKSolver
 from solvers.osqp import OSQPSolver
-from solvers.qpoases import qpOASESSolver
+#from solvers.qpoases import qpOASESSolver
 
 ECOS = 'ECOS'
 ECOS_high = ECOS + "_high"
@@ -23,13 +23,14 @@ SOLVER_MAP = {OSQP: OSQPSolver,
               OSQP_high: OSQPSolver,
               OSQP_polish: OSQPSolver,
               OSQP_polish_high: OSQPSolver,
-              GUROBI: GUROBISolver,
-              GUROBI_high: GUROBISolver,
-              MOSEK: MOSEKSolver,
-              MOSEK_high: MOSEKSolver,
-              ECOS: ECOSSolver,
-              ECOS_high: ECOSSolver,
-              qpOASES: qpOASESSolver}
+              # GUROBI: GUROBISolver,
+              # GUROBI_high: GUROBISolver,
+              # MOSEK: MOSEKSolver,
+              # MOSEK_high: MOSEKSolver,
+              # ECOS: ECOSSolver,
+              # ECOS_high: ECOSSolver,
+              # qpOASES: qpOASESSolver
+             }
 
 time_limit = 1000. # Seconds
 eps_low = 1e-03

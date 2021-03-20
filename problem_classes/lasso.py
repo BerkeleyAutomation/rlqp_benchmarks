@@ -7,28 +7,31 @@ class LassoExample(object):
     '''
     Lasso QP example
     '''
-    def __init__(self, n, seed=1):
+    def __init__(self, n, seed=1, generate_cvxpy_problem=False, rng=None):
         '''
         Generate problem in QP format and CVXPY format
         '''
         # Set random seed
-        np.random.seed(seed)
+        if rng is None:
+            rng = np.random.default_rng(seed)
 
         self.n = int(n)               # Number of features
         self.m = int(self.n * 100)    # Number of data-points
 
         self.Ad = spa.random(self.m, self.n, density=0.15,
-                             data_rvs=np.random.randn)
-        self.x_true = np.multiply((np.random.rand(self.n) >
+                             random_state=rng,
+                             data_rvs=rng.standard_normal)
+        self.x_true = np.multiply((rng.standard_normal(self.n) >
                                    0.5).astype(float),
-                                  np.random.randn(self.n)) / np.sqrt(self.n)
-        self.bd = self.Ad.dot(self.x_true) + np.random.randn(self.m)
+                                  rng.standard_normal(self.n)) / np.sqrt(self.n)
+        self.bd = self.Ad.dot(self.x_true) + rng.standard_normal(self.m)
         self.lambda_max = np.linalg.norm(self.Ad.T.dot(self.bd), np.inf)
         self.lambda_param = (1./5.) * self.lambda_max
 
         self.qp_problem = self._generate_qp_problem()
-        self.cvxpy_problem, self.cvxpy_variables, self.cvxpy_param = \
-            self._generate_cvxpy_problem()
+        if generate_cvxpy_problem:
+            self.cvxpy_problem, self.cvxpy_variables, self.cvxpy_param = \
+                self._generate_cvxpy_problem()
 
     @staticmethod
     def name():

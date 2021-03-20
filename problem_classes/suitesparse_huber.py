@@ -9,7 +9,7 @@ class SuitesparseHuber(object):
     '''
     SuiteSparse Huber
     '''
-    def __init__(self, file_name):
+    def __init__(self, file_name, create_cvxpy_problem=False):
         '''
         Suitesparse Matrix collection Ax = b huber problem.
 
@@ -19,8 +19,9 @@ class SuitesparseHuber(object):
 
         self.qp_problem = self._generate_qp_problem()
 
-        self.cvxpy_problem, self.cvxpy_variables = \
-            self._generate_cvxpy_problem()
+        if create_cvxpy_problem:
+            self.cvxpy_problem, self.cvxpy_variables = \
+                self._generate_cvxpy_problem()
 
     def _load_suitesparse_huber_data(self, file):
         # Import with pytables
