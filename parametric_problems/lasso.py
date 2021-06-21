@@ -39,7 +39,7 @@ class LassoParametric(object):
         print("Solve Lasso problem for dimension %i" % self.dimension)
 
         # Create example instance
-        instance = LassoExample(self.dimension)
+        instance = LassoExample(self.dimension, create_cvxpy_problem=True)
         qp = instance.qp_problem
 
         # Create lambda array

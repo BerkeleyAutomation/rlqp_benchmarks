@@ -7,7 +7,7 @@ class LassoExample(object):
     '''
     Lasso QP example
     '''
-    def __init__(self, n, seed=1, generate_cvxpy_problem=False, rng=None):
+    def __init__(self, n, seed=1, create_cvxpy_problem=False, rng=None):
         '''
         Generate problem in QP format and CVXPY format
         '''
@@ -29,7 +29,7 @@ class LassoExample(object):
         self.lambda_param = (1./5.) * self.lambda_max
 
         self.qp_problem = self._generate_qp_problem()
-        if generate_cvxpy_problem:
+        if create_cvxpy_problem:
             self.cvxpy_problem, self.cvxpy_variables, self.cvxpy_param = \
                 self._generate_cvxpy_problem()
 
